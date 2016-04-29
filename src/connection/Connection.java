@@ -1,9 +1,9 @@
-package Connection;
+package connection;
 
 import java.io.IOException;
 
 /**
- * Created by Mr. Crapfruit on 20.11.2015.
+ * Created by Marcel Oehlenschlaeger und Wilhelm Werner
  */
 public class Connection {
 

@@ -1,7 +1,7 @@
-package Connection;
+package connection;
 
 /**
- * Created by Mr. Crapfruit on 21.11.2015.
+ * Created by Marcel Oehlenschlaeger und Wilhelm Werner
  */
 
 import java.io.*;
