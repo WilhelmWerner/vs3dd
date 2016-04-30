@@ -1,9 +1,17 @@
 package printer;
 
-public class Printer {
+public class Printer extends Thread{
 	
 	
-	public void main (String args[]){
+	public Printer(){
 		
 	}
+	
+	public void run(){
+		System.out.println("Printer Thread laeuft endlos");
+		while(true){
+			
+		}
+	}
+	
 }

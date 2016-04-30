@@ -1,5 +1,9 @@
 package controlpanel;
 
-public class Main {
+public class ControlPanel {
 
+	public void main (String args[]){
+		
+	}
+	
 }
