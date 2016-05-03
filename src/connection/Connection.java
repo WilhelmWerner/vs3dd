@@ -8,12 +8,10 @@ import java.io.IOException;
 public class Connection {
 
     private boolean UDP = false;
-    private int port = 25565;
-    private String host = "localhost";
 
     private IConnection Connection;
 
-    public Connection() throws Exception {
+    public Connection(String host, int port) throws Exception {
         if(UDP) {
             Connection = new UDPConnection(host, port);
         }
