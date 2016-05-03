@@ -8,9 +8,9 @@ import java.io.*;
 
 public class ControlPanel extends Thread {
 
-	private String displayName = '';
+	private String displayName = "";
 	private Socket client;
-	private GSON gson = new Gson();
+	private Gson gson = new Gson();
     private PrinterQueue printerQQ;
 
     boolean connected;
@@ -89,7 +89,7 @@ public class ControlPanel extends Thread {
                 break;
 
             case "DISCONNECT_PRINTER":
-                this.disconnectPrinter();
+
                 break;
 
 			case "ERROR":
@@ -107,7 +107,7 @@ public class ControlPanel extends Thread {
         this.printerQQ = new PrinterQueue(action.displayName);
     }
 
-    private void disconnectPrinter() {
+    private void disconnectPrinter() throws Exception {
         this.connected = false;
         this.fromClient.close();
         this.toClient.close();
@@ -117,7 +117,7 @@ public class ControlPanel extends Thread {
 	/*
 	 @message should be an json Object
 	 */
-	private void toClient(String message) {
+	private void toClient(String message) throws Exception {
 		String jsonMsg = this.gson.toJson(message);
 		this.toClient.writeBytes(jsonMsg + "\n");
 	}
