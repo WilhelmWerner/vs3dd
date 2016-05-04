@@ -17,8 +17,7 @@ public class ControlPanel extends Thread {
     private BufferedReader fromClient;
     private DataOutputStream toClient;
 
-	public ControlPanel(String displayName, Socket client) {
-		this.displayName = displayName;
+	public ControlPanel(Socket client) {
 		this.client = client;
 	}
 
@@ -26,7 +25,7 @@ public class ControlPanel extends Thread {
 	public void run() {
 		String message;
         this.connected = true;
-		System.out.println("Thread started: " + this);                  // Display Thread-ID
+		System.out.println("Thread started: " + this);	// Display Thread-ID
 		try{
 			this.fromClient = new BufferedReader(new InputStreamReader(client.getInputStream())); // Datastream FROM Client
 			this.toClient = new DataOutputStream(client.getOutputStream());
@@ -102,24 +101,25 @@ public class ControlPanel extends Thread {
 
 	}
 
-    private void connectPrinter(String body) {
-        ConnectPrinter action = this.gson.fromJson(body, ConnectPrinter.class);
-        this.printerQQ = new PrinterQueue(action.displayName);
+    private void createPrinterQueue(String body) {
+        this.printerQQ = new PrinterQueue(body);
     }
 
     private void disconnectPrinter() throws Exception {
-        this.connected = false;
-        this.fromClient.close();
-        this.toClient.close();
-        this.client.close();
+		if(this.connected) {
+			this.connected = false;
+			this.fromClient.close();
+			this.toClient.close();
+			this.client.close();
+		}
     }
 
 	/*
 	 @message should be an json Object
 	 */
-	private void toClient(String message) throws Exception {
+	private void sendMessage(String message) throws Exception {
 		String jsonMsg = this.gson.toJson(message);
-		this.toClient.writeBytes(jsonMsg + "\n");
+		toClient.writeBytes(jsonMsg);
 	}
 	
 }

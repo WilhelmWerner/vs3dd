@@ -8,10 +8,3 @@ public class Action {
     public String body;
 
 }
-
-
-public class ConnectPrinter {
-
-    public String displayName;
-
-}

@@ -2,7 +2,7 @@ package controlpanel;
 
 import java.net.*;
 
-public class MultithreadedTCPServer {
+public class TCPServer {
     public static void main(String[] args) throws Exception {
         int port = 25565;
         ServerSocket listenSocket = new ServerSocket(port);
@@ -11,7 +11,7 @@ public class MultithreadedTCPServer {
             Socket client = listenSocket.accept();
             System.out.println("Connection with: " +     // Output connection
                     client.getRemoteSocketAddress());   // (Client) address
-            new MonitoringService(client).start();
+            new ControlPanel(client).start();
         }
     }
 }

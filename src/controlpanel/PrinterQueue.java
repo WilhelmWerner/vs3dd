@@ -13,8 +13,8 @@ public class PrinterQueue {
 
     private int currentTaskIndex = 0;
 
-    public PrinterQueue(String displayName) {
-        this.displayName = displayName;
+    public PrinterQueue(String body) {
+        // TODO: 04.05.16 create constructionSteps with the body  
     }
 
     public String getNextTask() {
