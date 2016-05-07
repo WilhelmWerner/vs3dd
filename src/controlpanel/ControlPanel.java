@@ -83,13 +83,9 @@ public class ControlPanel extends Thread {
 
                 break;
 
-            case "CONNECT_PRINTER":
+			case "STATUS_MESSAGE":
 
-                break;
-
-            case "DISCONNECT_PRINTER":
-
-                break;
+				break;
 
 			case "ERROR":
 
