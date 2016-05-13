@@ -7,10 +7,7 @@ package connection;
 import java.io.*;
 import java.net.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import printer.PrinterStep;
 
 public class TCPConnection implements IConnection {
 

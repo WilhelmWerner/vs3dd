@@ -6,7 +6,6 @@ package connection;
 import java.io.IOException;
 import java.net.*;
 
-import printer.PrinterStep;
 
 public class UDPConnection implements IConnection {
 

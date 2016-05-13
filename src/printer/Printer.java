@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import connection.Connection;
+import controlpanel.ConstructionStep;
 
 public class Printer extends Thread{
 
@@ -49,7 +50,7 @@ public class Printer extends Thread{
         String msg = Connection.receiveMessage();
         
         Gson gson = new GsonBuilder().create();
-        PrinterStep step = gson.fromJson(msg, PrinterStep.class);        
+        ConstructionStep step = gson.fromJson(msg, ConstructionStep.class);        
         
         System.out.println("Message: " + step.toString());
     }
