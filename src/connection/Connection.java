@@ -38,7 +38,7 @@ public class Connection {
         Connection.sendMessage(msg);
     }
 
-    public PrinterStep receiveMessage() throws IOException {
+    public String receiveMessage() throws IOException {
         return Connection.receiveMessage();
     }
 }

@@ -12,5 +12,5 @@ public interface IConnection {
     public void close() throws IOException;
     public void tellServerToClose() throws IOException;
     public void sendMessage(String msg) throws IOException;
-    public PrinterStep receiveMessage() throws IOException;
+    public String receiveMessage() throws IOException;
 }

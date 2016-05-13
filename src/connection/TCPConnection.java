@@ -46,13 +46,10 @@ public class TCPConnection implements IConnection {
         toServer.writeBytes("." + '\n');
     }
 
-    public PrinterStep receiveMessage() throws IOException {
+    public String receiveMessage() throws IOException {
         String msg = fromServer.readLine();
         
-        Gson gson = new GsonBuilder().create();
-        PrinterStep step = gson.fromJson(msg, PrinterStep.class);
-        
-        return step;
+        return msg;
     }
 
 }

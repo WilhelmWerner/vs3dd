@@ -2,6 +2,9 @@ package printer;
 
 import java.io.IOException;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import connection.Connection;
 
 public class Printer extends Thread{
@@ -43,7 +46,11 @@ public class Printer extends Thread{
 	}
 	
 	private void receiveMessage() throws IOException {
-        PrinterStep step = Connection.receiveMessage();
+        String msg = Connection.receiveMessage();
+        
+        Gson gson = new GsonBuilder().create();
+        PrinterStep step = gson.fromJson(msg, PrinterStep.class);        
+        
         System.out.println("Message: " + step.toString());
     }
 	

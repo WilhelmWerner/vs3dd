@@ -44,11 +44,9 @@ public class UDPConnection implements IConnection {
         socket.send(packetSend);
     }
 
-    //TODO implement PrinterStep
-    public PrinterStep receiveMessage() throws IOException {
+    public String receiveMessage() throws IOException {
         packetReceive = new DatagramPacket(dataReceive, dataReceive.length);
         socket.receive(packetReceive);
-        //return new String(packetReceive.getData());
-        return new PrinterStep();
+        return new String(packetReceive.getData());
     }
 }
