@@ -15,7 +15,7 @@ public class ControlPanel extends Thread {
     private PrinterQueue printerQQ = new PrinterQueue();
 
     boolean connected;
-	boolean hasNextSteps = false;
+	boolean hasNextSteps = true;
     private BufferedReader fromClient;
     private DataOutputStream toClient;
 
@@ -32,8 +32,12 @@ public class ControlPanel extends Thread {
 			this.fromClient = new BufferedReader(new InputStreamReader(client.getInputStream())); // Datastream FROM Client
 			this.toClient = new DataOutputStream(client.getOutputStream());
 
+			readTestFile();
+			successStep();
+
 			while(connected){
 				if (hasNextSteps) {
+
 					message = fromClient.readLine();
 
 					System.out.println("Received: " + message);
@@ -43,20 +47,9 @@ public class ControlPanel extends Thread {
 					} else {
 						dispatchAction(message);
 					}
-				}else{
+				} else {
 					// TODO: 13.05.16 waiting for new Orders, set hasNextSteps to false
-					Reader reader = null;
-					try {
-						reader = new FileReader("jsonTestFiles/order.json");
-						Order order = gson.fromJson(reader, Order.class);
-						System.out.println(order.toString());
-						this.printerQQ.addOrder(order);
-					}
-					catch(Exception e) {
-						System.err.print("could not read the json file");
-					}
-					message = new Action("SUCCESS_STEP").toString();
-					this.hasNextSteps = true;
+
 				}
 			}
 
@@ -72,6 +65,20 @@ public class ControlPanel extends Thread {
 
 	}
 
+	private void readTestFile() {
+		Reader reader = null;
+		try {
+			reader = new FileReader("jsonTestFiles/order.json");
+			Order order = gson.fromJson(reader, Order.class);
+			System.out.println(order.toString());
+			this.printerQQ.addOrder(order);
+		}
+		catch(Exception e) {
+			System.err.print("could not read the json file");
+		}
+		this.hasNextSteps = true;
+	}
+
 	/*
 	@message should be an json Object
 	{
@@ -83,9 +90,7 @@ public class ControlPanel extends Thread {
 	*/
 	private void dispatchAction(String message) {
 
-		String jsonTestObj = "{\"type\": \"error\", \"body\": \"some blabla. \"}";
-
-		Action action = this.gson.fromJson(jsonTestObj, Action.class);
+		Action action = this.gson.fromJson(message, Action.class);
 
 		switch (action.type) {
 
@@ -122,8 +127,7 @@ public class ControlPanel extends Thread {
 	 @message should be an json Object
 	 */
 	private void sendMessage(String message) throws Exception {
-		String jsonMsg = this.gson.toJson(message);
-		toClient.writeBytes(jsonMsg);
+		toClient.writeBytes(message + "\n");
 	}
 
 	private void successStep() {
