@@ -4,7 +4,7 @@ import printer.*;
 
 public class StartAllPrinters {
 	// Menge der Drucker
-	int amountP = 10;
+	int amountP = 3;
 	// Menge der Materialbehaelter pro Drucker
 	int amountMC = 3;
 	// Array mit allen Druckern

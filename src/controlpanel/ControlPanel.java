@@ -2,6 +2,7 @@ package controlpanel;
 
 import com.google.gson.Gson;
 import actions.*;
+import com.google.gson.GsonBuilder;
 
 import java.net.*;
 import java.io.*;
@@ -10,10 +11,11 @@ public class ControlPanel extends Thread {
 
 	private String displayName = "";
 	private Socket client;
-	private Gson gson = new Gson();
+	private Gson gson = new GsonBuilder().create();
     private PrinterQueue printerQQ;
 
     boolean connected;
+	boolean hasNextSteps = false;
     private BufferedReader fromClient;
     private DataOutputStream toClient;
 
@@ -31,17 +33,30 @@ public class ControlPanel extends Thread {
 			this.toClient = new DataOutputStream(client.getOutputStream());
 
 			while(connected){
-				message = fromClient.readLine();
+				if (hasNextSteps) {
+					message = fromClient.readLine();
 
-				System.out.println("Received: "+ message);
+					System.out.println("Received: " + message);
 
-				if (message.equals(".")) {
-					connected = false;
+					if (message.equals(".")) {
+						connected = false;
+					} else {
+						dispatchAction(message);
+					}
+				}else{
+					// TODO: 13.05.16 waiting for new Orders, set hasNextSteps to false
+					Reader reader = null;
+					try {
+						reader = new FileReader("jsonTestFiles/order.json");
+						Order order = gson.fromJson(reader, Order.class);
+						this.printerQQ.addOrder(order);
+					}
+					catch(Exception e) {
+						System.err.print("could not read the json file");
+					}
+					message = new Action("SUCCESS_STEP").toString();
+					this.hasNextSteps = true;
 				}
-				else {
-					dispatchAction(message);
-				}
-
 			}
 
 			fromClient.close();
@@ -50,14 +65,10 @@ public class ControlPanel extends Thread {
 			System.out.println("Thread ended: " + this);
 
 		} catch (IOException e) {
-			System.err.println(e);
+			System.err.println("could not connect");
 		}
 
 
-	}
-
-	public void main (String args[]){
-		
 	}
 
 	/*
@@ -80,7 +91,7 @@ public class ControlPanel extends Thread {
             // send next step, if there are no steps left tell the printer to finish +
             // send next order step by step
             case "SUCCESS_STEP":
-
+				successStep();
                 break;
 
 			case "STATUS_MESSAGE":
@@ -116,6 +127,24 @@ public class ControlPanel extends Thread {
 	private void sendMessage(String message) throws Exception {
 		String jsonMsg = this.gson.toJson(message);
 		toClient.writeBytes(jsonMsg);
+	}
+
+	private void successStep() {
+
+		if(printerQQ.hasNextStep()) {
+			String nextStep = printerQQ.getNextStep();
+			try {
+				sendMessage(nextStep);
+			}
+			catch(Exception e) {
+				System.err.print("The server could not send the message to the client.");
+			}
+		}
+		else {
+			this.hasNextSteps = false;
+		}
+
+
 	}
 	
 }

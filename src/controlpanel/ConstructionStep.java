@@ -1,5 +1,8 @@
 package controlpanel;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
  * Created by trafy on 06.05.16.
  */
@@ -9,15 +12,14 @@ public class ConstructionStep {
     private int x;
     private int y;
     private int z;
-    
-
 
     public ConstructionStep() {
 
     }
     
     public String toString(){
-    	return (( draw ? "Zeichne bis " : "Fahre bis ") + x + "" + y + "" + z);
+        Gson gson = new GsonBuilder().create();
+    	return gson.toJson(this);
     }
 
 }
