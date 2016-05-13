@@ -1,8 +1,7 @@
 package controlpanel;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import actions.*;
-import com.google.gson.GsonBuilder;
 
 import java.net.*;
 import java.io.*;
@@ -70,7 +69,6 @@ public class ControlPanel extends Thread {
 		try {
 			reader = new FileReader("jsonTestFiles/order.json");
 			Order order = gson.fromJson(reader, Order.class);
-			System.out.println(order.toString());
 			this.printerQQ.addOrder(order);
 		}
 		catch(Exception e) {
@@ -89,10 +87,9 @@ public class ControlPanel extends Thread {
 	 }
 	*/
 	private void dispatchAction(String message) {
-
 		Action action = this.gson.fromJson(message, Action.class);
 
-		switch (action.type) {
+		switch (action.getType()) {
 
             // send next step, if there are no steps left tell the printer to finish +
             // send next order step by step

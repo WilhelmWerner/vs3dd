@@ -5,9 +5,13 @@ import com.google.gson.GsonBuilder;
 
 public class Action {
 
-    public String type;
-    public String body;
+    private String type;
+    private String body;
     private Gson gson;
+    
+    public Action() {
+    	
+    }
     
     // for the lazy boy
     public Action(String typeAndBody){
@@ -24,5 +28,14 @@ public class Action {
     	gson = new GsonBuilder().create();
     	
 		return gson.toJson(this);
+    }
+
+    public String getType(){
+    	return type;
+    }
+    
+
+    public String getBody(){
+    	return body;
     }
 }
