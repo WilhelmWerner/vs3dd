@@ -14,6 +14,7 @@ public class Printer extends Thread{
     private boolean connected = false;
     private int port = 0;
     private String host = "";
+    ConstructionStep step;
 	
 	public Printer(String host, int port){
 		this.host = host;
@@ -33,6 +34,11 @@ public class Printer extends Thread{
 		while(connected) {
             try {
                 receiveMessage();
+                if(proceedStep()){
+                	sendMessage("Done");
+                } else {
+                	sendMessage("Error");
+                }
             }
             catch (IOException e) {
                 System.err.println("Coulnd't receive message: " + e.getMessage());
@@ -50,9 +56,23 @@ public class Printer extends Thread{
         String msg = Connection.receiveMessage();
         
         Gson gson = new GsonBuilder().create();
-        ConstructionStep step = gson.fromJson(msg, ConstructionStep.class);        
-        
-        System.out.println("Message: " + step.toString());
+        step = gson.fromJson(msg, ConstructionStep.class);
     }
+	
+	private boolean proceedStep(){
+        System.out.println("Message: " + step.toString());
+        
+        try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+        return true;
+	}
+	
+	private void sendMessage(String msg){
+		
+	}
 	
 }
