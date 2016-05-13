@@ -35,7 +35,7 @@ public class Printer extends Thread{
             try {
                 receiveMessage();
                 if(proceedStep()){
-                	sendMessage(new Action("SUCCES_STEP").toString());
+                	sendMessage(new Action("SUCCESS_STEP").toString());
                 } else {
                 	sendMessage(new Action("ERROR").toString());
                 }
