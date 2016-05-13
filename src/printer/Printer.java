@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import actions.Action;
 import connection.Connection;
 import controlpanel.ConstructionStep;
 
@@ -14,7 +15,7 @@ public class Printer extends Thread{
     private boolean connected = false;
     private int port = 0;
     private String host = "";
-    ConstructionStep step;
+    private ConstructionStep step;
 	
 	public Printer(String host, int port){
 		this.host = host;
@@ -23,7 +24,6 @@ public class Printer extends Thread{
 	
 	public void run(){
 		try{
-
             Connection = new Connection(host, port);
             Connection.connect();
             connected = true;
@@ -35,9 +35,9 @@ public class Printer extends Thread{
             try {
                 receiveMessage();
                 if(proceedStep()){
-                	sendMessage("Done");
+                	sendMessage(new Action("SUCCES_STEP").toString());
                 } else {
-                	sendMessage("Error");
+                	sendMessage(new Action("ERROR").toString());
                 }
             }
             catch (IOException e) {
