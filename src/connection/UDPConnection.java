@@ -6,6 +6,8 @@ package connection;
 import java.io.IOException;
 import java.net.*;
 
+import printer.PrinterStep;
+
 public class UDPConnection implements IConnection {
 
     private String host;
@@ -42,9 +44,11 @@ public class UDPConnection implements IConnection {
         socket.send(packetSend);
     }
 
-    public String receiveMessage() throws IOException {
+    //TODO implement PrinterStep
+    public PrinterStep receiveMessage() throws IOException {
         packetReceive = new DatagramPacket(dataReceive, dataReceive.length);
         socket.receive(packetReceive);
-        return new String(packetReceive.getData());
+        //return new String(packetReceive.getData());
+        return new PrinterStep();
     }
 }

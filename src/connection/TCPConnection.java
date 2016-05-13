@@ -7,6 +7,11 @@ package connection;
 import java.io.*;
 import java.net.*;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import printer.PrinterStep;
+
 public class TCPConnection implements IConnection {
 
     private String host;
@@ -41,13 +46,13 @@ public class TCPConnection implements IConnection {
         toServer.writeBytes("." + '\n');
     }
 
-    public String receiveMessage() throws IOException {
+    public PrinterStep receiveMessage() throws IOException {
         String msg = fromServer.readLine();
-        String[] param = msg.split("-");
-        if (param[0].equals("Ping")) {
-
-        }
-        return param[0];
+        
+        Gson gson = new GsonBuilder().create();
+        PrinterStep step = gson.fromJson(msg, PrinterStep.class);
+        
+        return step;
     }
 
 }

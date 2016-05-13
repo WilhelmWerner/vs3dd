@@ -2,6 +2,8 @@ package connection;
 
 import java.io.IOException;
 
+import printer.PrinterStep;
+
 /**
  * Created by Marcel Oehlenschlaeger und Wilhelm Werner
  */
@@ -36,7 +38,7 @@ public class Connection {
         Connection.sendMessage(msg);
     }
 
-    public String receiveMessage() throws IOException {
+    public PrinterStep receiveMessage() throws IOException {
         return Connection.receiveMessage();
     }
 }

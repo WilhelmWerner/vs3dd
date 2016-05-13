@@ -16,10 +16,13 @@ public class StartAllPrinters {
 	// Array  mit allen Threads für die Materialbehaelter
 	Thread[][] allMCThreads = new Thread[amountP][amountMC];
 	
+	String host = "localhost";
+	int port = 25565;
+	
 	// startet alle Drucker und deren Materialbehaelter in eigenen Threads
 	public StartAllPrinters(){
 		for(int i = 0; i < amountP; i++){
-			allPrinters[i] = new Printer();
+			allPrinters[i] = new Printer(host, port);
 			allPThreads[i] = new Thread(allPrinters[i]);
 			allPThreads[i].start();
 			for(int j = 0; j < amountMC; j++){
