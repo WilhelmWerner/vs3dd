@@ -3,13 +3,15 @@ package controlpanel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
+
 /**
  * Created by trafy on 06.05.16.
  */
 public class Order {
 
     private String orderId;
-    private ConstructionStep[] constructionSteps;
+    private ArrayList<ConstructionStep> constructionSteps = new ArrayList<>();
 
     private int currentStepIndex = 0;
 
@@ -18,7 +20,7 @@ public class Order {
     }
 
     public boolean hasNextStep() {
-        if(this.currentStepIndex < constructionSteps.length) {
+        if(this.currentStepIndex < constructionSteps.size()) {
             return true;
         }
         return false;
@@ -29,7 +31,18 @@ public class Order {
      * @return constructionStep as json
      */
     public String getNextStep() {
-        return this.constructionSteps[currentStepIndex].toString();
+        return this.constructionSteps.get(this.currentStepIndex).toString();
+    }
+
+    public String toString() {
+        String steps = "";
+
+        for (int i = 0; i < constructionSteps.size(); ++i) {
+            steps += constructionSteps.get(this.currentStepIndex).toString();
+            steps += ", ";
+        }
+
+        return this.orderId + ", " + steps;
     }
 
 }

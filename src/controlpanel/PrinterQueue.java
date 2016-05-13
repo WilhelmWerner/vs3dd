@@ -10,13 +10,13 @@ import java.util.ArrayList;
 
 public class PrinterQueue {
 
-    private ArrayList<Order> orders;
+    private ArrayList<Order> orders = new ArrayList<>();
     private String displayName;
 
     private int currentOrderIndex = 0;
 
-    public PrinterQueue(String body) {
-        // TODO: 04.05.16 create constructionSteps with the body  
+    public PrinterQueue() {
+
     }
 
     public String getNextStep() {

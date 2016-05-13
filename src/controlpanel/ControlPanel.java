@@ -12,7 +12,7 @@ public class ControlPanel extends Thread {
 	private String displayName = "";
 	private Socket client;
 	private Gson gson = new GsonBuilder().create();
-    private PrinterQueue printerQQ;
+    private PrinterQueue printerQQ = new PrinterQueue();
 
     boolean connected;
 	boolean hasNextSteps = false;
@@ -49,6 +49,7 @@ public class ControlPanel extends Thread {
 					try {
 						reader = new FileReader("jsonTestFiles/order.json");
 						Order order = gson.fromJson(reader, Order.class);
+						System.out.println(order.toString());
 						this.printerQQ.addOrder(order);
 					}
 					catch(Exception e) {
@@ -107,10 +108,6 @@ public class ControlPanel extends Thread {
 		}
 
 	}
-
-    private void createPrinterQueue(String body) {
-        this.printerQQ = new PrinterQueue(body);
-    }
 
     private void disconnectPrinter() throws Exception {
 		if(this.connected) {
