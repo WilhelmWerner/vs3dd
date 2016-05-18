@@ -1,0 +1,23 @@
+{
+  "orderId": "122423",
+  "constructionSteps": [
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "draw": false
+    },
+    {
+      "x": 10,
+      "y": 10,
+      "z": 10,
+      "draw": true
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "draw": false
+    }
+  ]
+}
