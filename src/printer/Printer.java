@@ -37,19 +37,13 @@ public class Printer extends Thread{
 		while(connected) {
             try {
                 receiveMessage();
-                Action a = new Action();
                 if(proceedStep()){
                 	System.out.println("Send success");
-
-                	a = new Action("SUCCESS_STEP");
+                	sendMessage("SUCCESS_STEP");
                 } else {
-                	a = new Action("ERROR");
+                	sendMessage("ERROR");
                 }
 
-            	Gson gson = new GsonBuilder().create();
-            	
-
-            	connection.sendMessage(gson.toJson(a));
             }
             catch (IOException e) {
                 System.err.println("Coulnd't receive message: " + e.getMessage());
@@ -82,8 +76,10 @@ public class Printer extends Thread{
         return true;
 	}
 	
-	private void sendMessage(String msg){
-		
+	private void sendMessage(String msg) throws IOException{
+        Action a = new Action(msg);
+    	Gson gson = new GsonBuilder().create();
+    	connection.sendMessage(gson.toJson(a));
 	}
 	
 }

@@ -22,7 +22,9 @@ public class UDPConnection implements IConnection{
     InetAddress[] addressOf = new InetAddress[4];
     int location;
     
-	public UDPConnection(int port) throws Exception{
+    String[] nameOf = new String[4];
+    
+	public UDPConnection(int port) throws IOException{
 		this.port = port;
 		
 		connect();
@@ -31,18 +33,13 @@ public class UDPConnection implements IConnection{
 	@Override
 	public void connect() throws IOException {
 		socket = new DatagramSocket(port);
-        System.out.println("UDPServer startet auf Port " + port);
+        System.out.println("UDP Server startet auf Port " + port);
 	}
 
 	@Override
 	public void close() throws IOException {
         socket.close();
 		
-	}
-
-	@Override
-	public void tellServerToClose() throws IOException {
-		return;
 	}
 
 	@Override
@@ -75,11 +72,6 @@ public class UDPConnection implements IConnection{
 	}
 	
 	@Override
-	public int lastMessageFrom() {
-		return portOfLastClient;
-	}
-	
-	@Override
 	public void waitForAllComponents() throws IOException{
 		String message;
 		
@@ -93,6 +85,7 @@ public class UDPConnection implements IConnection{
 				}
 				addressOf[0] = addressOfLastClient;
 				portOf[0] = portOfLastClient;
+				nameOf[0] = message;
 				break;
 			case "container rot":
 				if(addressOf[1] == null){
@@ -101,6 +94,7 @@ public class UDPConnection implements IConnection{
 				}
 				addressOf[1] = addressOfLastClient;
 				portOf[1] = portOfLastClient;
+				nameOf[1] = message;
 				break;
 			case "container gruen":
 				if(addressOf[2] == null){
@@ -109,6 +103,7 @@ public class UDPConnection implements IConnection{
 				}
 				addressOf[2] = addressOfLastClient;
 				portOf[2] = portOfLastClient;
+				nameOf[2] = message;
 				break;
 			case "container blau":
 				if(addressOf[3] == null){
@@ -117,10 +112,21 @@ public class UDPConnection implements IConnection{
 				}
 				addressOf[3] = addressOfLastClient;
 				portOf[3] = portOfLastClient;
+				nameOf[3] = message;
 				break;
 			default:
 				System.err.println("not a component");
 			}			
 		}
+	}
+
+	@Override
+	public String lastSender() {
+		for(int i = 0; i < 4; i++){
+			if(portOf[i] == portOfLastClient){
+				return nameOf[i];
+			}
+		}
+		return "Unbekannter Sender";
 	}
 }

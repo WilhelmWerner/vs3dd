@@ -12,6 +12,7 @@ public class ControlPanel extends Thread {
 	private String displayName = "";
 	private Gson gson = new GsonBuilder().create();
     private PrinterQueue printerQQ = new PrinterQueue();
+    private String lastSender;
 
     boolean connected;
 	boolean hasNextSteps = true;
@@ -37,15 +38,12 @@ public class ControlPanel extends Thread {
 				if (hasNextSteps) {
 					message = ".";
 					message = connection.receiveMessage();
+					lastSender = connection.lastSender();
 					System.out.println("Received: " + message);
-
-					if (message.equals(".")) {
+					if(message.equals(".")){
 						disconnect();
-					} else if (message.equals("ping")){
-						//ignore for the moment
-					}
-					else {
-						dispatchAction(message);
+					} else {
+						dispatchAction(message);						
 					}
 				} else {
 					// TODO: 13.05.16 waiting for new Orders, set hasNextSteps to false
@@ -99,6 +97,9 @@ public class ControlPanel extends Thread {
 			case "ERROR":
 
 				break;
+			case "PING":
+				System.out.println("got Ping from " + lastSender);
+				break;
 			default:
 				System.out.println("Error: Invalid action was dispatched!");
 				break;
@@ -106,10 +107,15 @@ public class ControlPanel extends Thread {
 
 	}
 
-    private void disconnect() throws IOException {
+    private void disconnect() {
 		if(this.connected) {
 			this.connected = false;
-			this.connection.close();
+			
+			try {
+				this.connection.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
     }
 

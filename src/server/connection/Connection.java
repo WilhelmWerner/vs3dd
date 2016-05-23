@@ -33,10 +33,13 @@ public class Connection {
         connection.close();
     }
 
-    public void tellServerToClose() throws IOException {
-        connection.tellServerToClose();
-    }
-
+    /**
+     * Sende eine Nachricht
+     * 
+     * @param msg nachricht die versendet werden soll
+     * @param recipient Empfänger: 0 = drucker 1-3 = container rgb
+     * @throws IOException
+     */
     public void sendMessage(String msg, int recipient) throws IOException {
         connection.sendMessage(msg, recipient);
     }
@@ -47,5 +50,9 @@ public class Connection {
     
     public void waitForAllComponents() throws IOException {
     	connection.waitForAllComponents();
+    }
+    
+    public String lastSender(){
+    	return connection.lastSender();
     }
 }

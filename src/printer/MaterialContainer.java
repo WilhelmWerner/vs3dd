@@ -38,24 +38,14 @@ public class MaterialContainer extends Thread{
 		
 		while(connected) {
             try {
-                receiveMessage();
-                Action a = new Action();
-                if(proceedStep()){
-                	System.out.println("Send success");
-
-                	a = new Action("SUCCESS_STEP");
-                } else {
-                	a = new Action("ERROR");
-                }
-
-            	Gson gson = new GsonBuilder().create();
-            	
-
-            	connection.sendMessage(gson.toJson(a));
+                Thread.sleep(5000);
+            	sendMessage("PING");
             }
             catch (IOException e) {
                 System.err.println("Coulnd't receive message: " + e.getMessage());
-            }
+            } catch (InterruptedException e) {
+				e.printStackTrace();
+			}
         }
         try {
             connection.close();
@@ -84,8 +74,10 @@ public class MaterialContainer extends Thread{
         return true;
 	}
 	
-	private void sendMessage(String msg){
-		
+	private void sendMessage(String msg) throws IOException{
+        Action a = new Action(msg);
+    	Gson gson = new GsonBuilder().create();
+    	connection.sendMessage(gson.toJson(a));
 	}
 	
 }
