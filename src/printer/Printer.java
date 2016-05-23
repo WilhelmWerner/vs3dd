@@ -6,27 +6,30 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import actions.Action;
-import connection.Connection;
+import client.connection.Connection;
 import controlpanel.ConstructionStep;
 
 public class Printer extends Thread{
 
-    private Connection Connection;
+    private Connection connection;
     private boolean connected = false;
     private int port = 0;
     private String host = "";
     private ConstructionStep step;
+    private boolean udp;
 	
-	public Printer(String host, int port){
+	public Printer(String host, int port, boolean udp){
 		this.host = host;
 		this.port = port;
+		this.udp = udp;
 	}
 	
 	public void run(){
 		try{
-            Connection = new Connection(host, port);
-            Connection.connect();
+            connection = new Connection(host, port, udp);
+            connection.connect();
             connected = true;
+            connection.sendMessage("drucker");
         } catch(Exception e) {
             System.err.println("Connection to Server failed: " + e.getMessage());
         }
@@ -46,14 +49,14 @@ public class Printer extends Thread{
             	Gson gson = new GsonBuilder().create();
             	
 
-            	Connection.sendMessage(gson.toJson(a));
+            	connection.sendMessage(gson.toJson(a));
             }
             catch (IOException e) {
                 System.err.println("Coulnd't receive message: " + e.getMessage());
             }
         }
         try {
-            Connection.close();
+            connection.close();
         }
         catch (Exception e) {
             System.err.println("Coulnd't close client connection: " + e.getMessage());
@@ -61,7 +64,7 @@ public class Printer extends Thread{
 	}
 	
 	private void receiveMessage() throws IOException {
-        String msg = Connection.receiveMessage();
+        String msg = connection.receiveMessage();
         
         Gson gson = new GsonBuilder().create();
         step = gson.fromJson(msg, ConstructionStep.class);

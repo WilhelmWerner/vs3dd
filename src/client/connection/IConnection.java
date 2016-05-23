@@ -1,4 +1,4 @@
-package connection;
+package client.connection;
 
 import java.io.IOException;
 

@@ -2,6 +2,7 @@ package controlpanel;
 
 import com.google.gson.*;
 import actions.*;
+import server.connection.Connection;
 
 import java.net.*;
 import java.io.*;
@@ -15,11 +16,11 @@ public class ControlPanel extends Thread {
 
     boolean connected;
 	boolean hasNextSteps = true;
-    private BufferedReader fromClient;
-    private DataOutputStream toClient;
+	
+	Connection connection;
 
-	public ControlPanel(Socket client) {
-		this.client = client;
+	public ControlPanel(int serverPort, boolean udp) throws Exception {
+		connection = new Connection(serverPort, udp);
 	}
 
 	@Override
@@ -27,23 +28,32 @@ public class ControlPanel extends Thread {
 		String message;
         this.connected = true;
 		System.out.println("Thread started: " + this);	// Display Thread-ID
-		try{
-			this.fromClient = new BufferedReader(new InputStreamReader(client.getInputStream())); // Datastream FROM Client
-			this.toClient = new DataOutputStream(client.getOutputStream());
-
+			try {
+				connection.waitForAllComponents();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			readTestFile();
 			successStep();
 
 			while(connected){
 				if (hasNextSteps) {
-
-					message = fromClient.readLine();
+					message = ".";
+					try {
+						message = connection.receiveMessage();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 
 					System.out.println("Received: " + message);
 
 					if (message.equals(".")) {
 						connected = false;
-					} else {
+					} else if (message.equals("ping")){
+						//ignore for the moment
+					}
+					else {
 						dispatchAction(message);
 					}
 				} else {
@@ -52,14 +62,13 @@ public class ControlPanel extends Thread {
 				}
 			}
 
-			fromClient.close();
-			toClient.close();
-			client.close();
+			try {
+				connection.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			System.out.println("Thread ended: " + this);
 
-		} catch (IOException e) {
-			System.err.println("could not connect");
-		}
 
 
 	}
@@ -114,17 +123,17 @@ public class ControlPanel extends Thread {
     private void disconnectPrinter() throws Exception {
 		if(this.connected) {
 			this.connected = false;
-			this.fromClient.close();
-			this.toClient.close();
-			this.client.close();
+			this.connection.close();
 		}
     }
 
-	/*
-	 @message should be an json Object
+	/**
+	 * 
+	 * @param message should be an json Object
+	 * @throws Exception
 	 */
-	private void sendMessage(String message) throws Exception {
-		toClient.writeBytes(message + "\n");
+	private void sendMessage(String message, int recipient) throws Exception {
+		connection.sendMessage(message + "\n", recipient);
 	}
 
 	private void successStep() {
@@ -132,7 +141,7 @@ public class ControlPanel extends Thread {
 		if(printerQQ.hasNextStep()) {
 			String nextStep = printerQQ.getNextStep();
 			try {
-				sendMessage(nextStep);
+				sendMessage(nextStep, 0);
 			}
 			catch(Exception e) {
 				System.err.print("The server could not send the message to the client.");

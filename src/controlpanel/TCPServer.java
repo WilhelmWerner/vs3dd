@@ -11,7 +11,7 @@ public class TCPServer {
             Socket client = listenSocket.accept();
             System.out.println("Connection with: " +     // Output connection
                     client.getRemoteSocketAddress());   // (Client) address
-            new ControlPanel(client).start();
+            new ControlPanel2(client).start();
         }
     }
 }

@@ -4,32 +4,35 @@ import printer.*;
 
 public class StartAllPrinters {
 	// Menge der Drucker
-	int amountP = 3;
+	private int amountP = 3;
 	// Menge der Materialbehaelter pro Drucker
-	int amountMC = 3;
+	private int amountMC = 3;
 	// Array mit allen Druckern
-	Printer[] allPrinters = new Printer[amountP];
+	private Printer[] allPrinters = new Printer[amountP];
 	// Array mit allen Threads für die Drucker
-	Thread[] allPThreads = new Thread[amountP];
+	private Thread[] allPThreads = new Thread[amountP];
 	// Array mit allen Materialbehaeltern
-	MaterialContainer[][] allMC = new MaterialContainer[amountP][amountMC];
+	private MaterialContainer[][] allMC = new MaterialContainer[amountP][amountMC];
 	// Array  mit allen Threads für die Materialbehaelter
-	Thread[][] allMCThreads = new Thread[amountP][amountMC];
+	private Thread[][] allMCThreads = new Thread[amountP][amountMC];
 	
-	String host = "localhost";
-	int port = 25565;
+	private String host = "localhost";
+	private int port = 25565;
+	private boolean udp = true;
+	private final String colors[] = {"rot", "gruen", "blau"};
 	
 	// startet alle Drucker und deren Materialbehaelter in eigenen Threads
 	public StartAllPrinters(){
 		for(int i = 0; i < amountP; i++){
-			allPrinters[i] = new Printer(host, port);
+			allPrinters[i] = new Printer(host, port, udp);
 			allPThreads[i] = new Thread(allPrinters[i]);
 			allPThreads[i].start();
 			for(int j = 0; j < amountMC; j++){
-				allMC[i][j] = new MaterialContainer();
+				allMC[i][j] = new MaterialContainer(host, port, udp, colors[j]);
 				allMCThreads[i][j] = new Thread(allMC[i][j]);
 				allMCThreads[i][j].start();
 			}	
+			port++;
 		}	
 	}
 

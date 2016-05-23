@@ -1,4 +1,4 @@
-package connection;
+package client.connection;
 
 import java.io.IOException;
 
@@ -7,12 +7,17 @@ import java.io.IOException;
  */
 public class Connection {
 
-    private boolean UDP = false;
-
     private IConnection Connection;
 
-    public Connection(String host, int port) throws Exception {
-        if(UDP) {
+    /**
+     * 
+     * @param host ip address of the host
+     * @param port port for the socket
+     * @param udp udp yes? = true otherwise false
+     * @throws Exception
+     */
+    public Connection(String host, int port, boolean udp) throws Exception {
+    	if(udp) {
             Connection = new UDPConnection(host, port);
         }
         else {

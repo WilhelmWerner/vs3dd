@@ -1,4 +1,4 @@
-package connection;
+package client.connection;
 
 /**
  * Created by Marcel Oehlenschlaeger und Wilhelm Werner
@@ -40,12 +40,15 @@ public class UDPConnection implements IConnection {
         address = InetAddress.getByName(host);
         dataSend = (msg).getBytes();
         packetSend = new DatagramPacket(dataSend, dataSend.length, address, port);
+        //System.out.println(new String(packetSend.getData()));
         socket.send(packetSend);
     }
 
     public String receiveMessage() throws IOException {
         packetReceive = new DatagramPacket(dataReceive, dataReceive.length);
         socket.receive(packetReceive);
-        return new String(packetReceive.getData());
+        String msg = new String(packetReceive.getData());
+        msg = msg.trim();
+        return msg;
     }
 }

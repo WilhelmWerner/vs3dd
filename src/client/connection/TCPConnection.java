@@ -1,4 +1,4 @@
-package connection;
+package client.connection;
 
 /**
  * Created by Marcel Oehlenschlaeger und Wilhelm Werner
