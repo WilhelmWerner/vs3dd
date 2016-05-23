@@ -28,11 +28,8 @@ public class ControlPanel extends Thread {
 		String message;
         this.connected = true;
 		System.out.println("Thread started: " + this);	// Display Thread-ID
-			try {
-				connection.waitForAllComponents();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		try {
+			connection.waitForAllComponents();
 			
 			readTestFile();
 			successStep();
@@ -40,12 +37,7 @@ public class ControlPanel extends Thread {
 			while(connected){
 				if (hasNextSteps) {
 					message = ".";
-					try {
-						message = connection.receiveMessage();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
+					message = connection.receiveMessage();
 					System.out.println("Received: " + message);
 
 					if (message.equals(".")) {
@@ -62,15 +54,11 @@ public class ControlPanel extends Thread {
 				}
 			}
 
-			try {
-				connection.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			connection.close();
 			System.out.println("Thread ended: " + this);
-
-
-
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void readTestFile() {
