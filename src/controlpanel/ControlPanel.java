@@ -10,7 +10,6 @@ import java.io.*;
 public class ControlPanel extends Thread {
 
 	private String displayName = "";
-	private Socket client;
 	private Gson gson = new GsonBuilder().create();
     private PrinterQueue printerQQ = new PrinterQueue();
 
@@ -41,7 +40,7 @@ public class ControlPanel extends Thread {
 					System.out.println("Received: " + message);
 
 					if (message.equals(".")) {
-						connected = false;
+						disconnect();
 					} else if (message.equals("ping")){
 						//ignore for the moment
 					}
@@ -54,7 +53,6 @@ public class ControlPanel extends Thread {
 				}
 			}
 
-			connection.close();
 			System.out.println("Thread ended: " + this);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -108,7 +106,7 @@ public class ControlPanel extends Thread {
 
 	}
 
-    private void disconnectPrinter() throws Exception {
+    private void disconnect() throws IOException {
 		if(this.connected) {
 			this.connected = false;
 			this.connection.close();
