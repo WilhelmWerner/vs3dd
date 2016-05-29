@@ -2,20 +2,22 @@ package controlpanel;
 
 import com.google.gson.*;
 import actions.*;
+import com.sun.xml.bind.v2.TODO;
 import server.connection.Connection;
 
-import java.net.*;
 import java.io.*;
 
 public class ControlPanel extends Thread {
 
 	private String displayName = "";
 	private Gson gson = new GsonBuilder().create();
-    private PrinterQueue printerQQ = new PrinterQueue();
     private String lastSender;
 
+	private Order currentOrder = null;
+	private PrinterQueue printerQQ = new PrinterQueue();
+
     boolean connected;
-	boolean hasNextSteps = true;
+	boolean isWorking = false;
 	
 	Connection connection;
 
@@ -30,24 +32,32 @@ public class ControlPanel extends Thread {
 		System.out.println("Thread started: " + this);	// Display Thread-ID
 		try {
 			connection.waitForAllComponents();
-			
-			readTestFile();
-			successStep();
 
 			while(connected){
-				if (hasNextSteps) {
+				if (isWorking) {
 					message = ".";
 					message = connection.receiveMessage();
 					lastSender = connection.lastSender();
 					System.out.println("Received: " + message);
 					if(message.equals(".")){
+						if (isWorking) {
+							// TODO: 29.05.16 detailed error reporting
+							System.out.println("Something went wrong. The printer couldn't finish this order. ");
+						}
 						disconnect();
 					} else {
 						dispatchAction(message);						
 					}
 				} else {
-					// TODO: 13.05.16 waiting for new Orders, set hasNextSteps to false
+					// TODO: 29.05.16 consume next Order from activemq /consume/order
+					String nextOrder = printerQQ.consumeOrder();
+					System.out.print("Control panel received: " + nextOrder);
 
+					currentOrder = null;
+					currentOrder = gson.fromJson(nextOrder, Order.class);
+
+					// TODO: 30.05.16 should do a successStep() her? maybe ...
+					this.isWorking = true;
 				}
 			}
 
@@ -62,12 +72,11 @@ public class ControlPanel extends Thread {
 		try {
 			reader = new FileReader("jsonTestFiles/order.json");
 			Order order = gson.fromJson(reader, Order.class);
-			this.printerQQ.addOrder(order);
 		}
 		catch(Exception e) {
 			System.err.print("could not read the json file");
 		}
-		this.hasNextSteps = true;
+		this.isWorking = true;
 	}
 
 	/*
@@ -129,9 +138,8 @@ public class ControlPanel extends Thread {
 	}
 
 	private void successStep() {
-
-		if(printerQQ.hasNextStep()) {
-			String nextStep = printerQQ.getNextStep();
+		if(currentOrder.hasNextStep()) {
+			String nextStep = currentOrder.getNextStep();
 			try {
 				sendMessage(nextStep, 0);
 			}
@@ -140,10 +148,8 @@ public class ControlPanel extends Thread {
 			}
 		}
 		else {
-			this.hasNextSteps = false;
+			this.isWorking = false;
 		}
-
-
 	}
-	
+
 }

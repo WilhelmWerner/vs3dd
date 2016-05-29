@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="org.apache.activemq:activemq-all:5.13.3" type="repository">
+    <properties maven-id="org.apache.activemq:activemq-all:5.13.3" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/activemq/activemq-all/5.13.3/activemq-all-5.13.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

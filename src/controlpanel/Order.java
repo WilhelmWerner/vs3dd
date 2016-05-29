@@ -20,6 +20,7 @@ public class Order {
     }
 
     public boolean hasNextStep() {
+        ++this.currentStepIndex;
         if(this.currentStepIndex < constructionSteps.size()) {
             return true;
         }
@@ -32,6 +33,13 @@ public class Order {
      */
     public String getNextStep() {
         return this.constructionSteps.get(this.currentStepIndex).toString();
+    }
+
+    public String getWorkingProgress() {
+        int total = this.constructionSteps.size();
+        String pre = "Order " + this.orderId + "finished ";
+        String progress = pre + this.currentStepIndex + "/" + total;
+        return progress;
     }
 
     public String toString() {

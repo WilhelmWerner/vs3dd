@@ -9,5 +9,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="library" name="com.google.code.gson:gson:2.6.2" level="project" />
+    <orderEntry type="library" name="org.glassfish.jersey.containers:jersey-container-jdk-http:2.3.1" level="project" />
+    <orderEntry type="library" name="org.apache.activemq:activemq-all:5.13.3" level="project" />
   </component>
 </module>

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * Created by trafy on 06.05.16.
+ * Created by Wilhelm Werner und Marcel Öhlenschläger
  */
 public class ConstructionStep {
 
