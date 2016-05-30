@@ -20,18 +20,23 @@ public class PrinterQueue {
     private MessageConsumer consumer = null;
 
     public PrinterQueue() {
-
-    }
-
-    public String consumeOrder() {
         try {
-            System.out.println("Trying to consume new order ... ");
             factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_BROKER_URL);
             connection = factory.createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             destination = session.createQueue("order");
             consumer = session.createConsumer(destination);
+        }
+        catch (JMSException e) {
+            System.err.print("Could not consume a new order: " + e.getMessage());
+        }
+    }
+
+    public String consumeOrder() {
+        try {
+            System.out.println("Trying to consume new order ... ");
+
             Message message = consumer.receive();
 
             // TODO: 29.05.16 use Json instance if possible
