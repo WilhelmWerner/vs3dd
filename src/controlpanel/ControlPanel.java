@@ -53,7 +53,7 @@ public class ControlPanel extends Thread {
 
 					if(currentOrder != null) {
 						System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
-						processStep();
+						proceedStep();
 						this.isWorking = true;
 					}
 
@@ -95,7 +95,7 @@ public class ControlPanel extends Thread {
             // send next step, if there are no steps left tell the printer to finish +
             // send next order step by step
             case "SUCCESS_STEP":
-				processStep();
+				proceedStep();
                 break;
 
 			case "STATUS_MESSAGE":
@@ -136,7 +136,7 @@ public class ControlPanel extends Thread {
 		connection.sendMessage(message + "\n", recipient);
 	}
 
-	private void processStep() {
+	private void proceedStep() {
 		if(currentOrder != null && currentOrder.hasNextStep()) {
 			System.out.println(currentOrder.getWorkingProgress());
 			String nextStep = currentOrder.getNextStep();
