@@ -2,7 +2,6 @@ package controlpanel;
 
 import com.google.gson.*;
 import actions.*;
-import com.sun.xml.bind.v2.TODO;
 import server.connection.Connection;
 
 import java.io.*;
@@ -56,7 +55,7 @@ public class ControlPanel extends Thread {
 					currentOrder = null;
 					currentOrder = gson.fromJson(nextOrder, Order.class);
 
-					// TODO: 30.05.16 should do a successStep() her? maybe ...
+					successStep();
 					this.isWorking = true;
 				}
 			}
@@ -138,7 +137,7 @@ public class ControlPanel extends Thread {
 	}
 
 	private void successStep() {
-		if(currentOrder.hasNextStep()) {
+		if(currentOrder != null && currentOrder.hasNextStep()) {
 			String nextStep = currentOrder.getNextStep();
 			try {
 				sendMessage(nextStep, 0);
