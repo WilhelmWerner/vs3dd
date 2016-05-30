@@ -55,10 +55,10 @@ public class ControlPanel extends Thread {
 
 					if(currentOrder != null) {
 						System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
+						successStep();
+						this.isWorking = true;
 					}
 
-					successStep();
-					this.isWorking = true;
 				}
 			}
 
