@@ -39,10 +39,8 @@ public class ControlPanel extends Thread {
 					lastSender = connection.lastSender();
 					System.out.println("Received: " + message);
 					if(message.equals(".")){
-						if (isWorking) {
-							// TODO: 29.05.16 detailed error reporting
-							System.out.println("Something went wrong. The printer couldn't finish this order. ");
-						}
+						// TODO: 29.05.16 detailed error reporting
+						System.out.println("Something went wrong. The printer couldn't finish this order. ");
 						disconnect();
 					} else {
 						dispatchAction(message);						
@@ -144,6 +142,7 @@ public class ControlPanel extends Thread {
 			String nextStep = currentOrder.getNextStep();
 			try {
 				sendMessage(nextStep, 0);
+				currentOrder.incrementStepIndex();
 			}
 			catch(Exception e) {
 				System.err.print("The server could not send the message to the client.");

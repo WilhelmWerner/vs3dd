@@ -17,7 +17,6 @@ public class Order {
     }
 
     public boolean hasNextStep() {
-        ++this.currentStepIndex;
         if(this.currentStepIndex < constructionSteps.size()) {
             return true;
         }
@@ -34,6 +33,10 @@ public class Order {
 
     public String getOrderId() {
         return this.orderId;
+    }
+
+    public void incrementStepIndex() {
+        ++this.currentStepIndex;
     }
 
     public String getWorkingProgress() {
