@@ -48,7 +48,6 @@ public class ControlPanel extends Thread {
 						dispatchAction(message);						
 					}
 				} else {
-					// TODO: 29.05.16 consume next Order from activemq /consume/order
 					String nextOrder = printerQQ.consumeOrder();
 
 					currentOrder = null;
