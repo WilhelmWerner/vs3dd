@@ -50,10 +50,13 @@ public class ControlPanel extends Thread {
 				} else {
 					// TODO: 29.05.16 consume next Order from activemq /consume/order
 					String nextOrder = printerQQ.consumeOrder();
-					System.out.print("Control panel received: " + nextOrder);
 
 					currentOrder = null;
 					currentOrder = gson.fromJson(nextOrder, Order.class);
+
+					if(currentOrder != null) {
+						System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
+					}
 
 					successStep();
 					this.isWorking = true;
@@ -138,6 +141,7 @@ public class ControlPanel extends Thread {
 
 	private void successStep() {
 		if(currentOrder != null && currentOrder.hasNextStep()) {
+			System.out.println(currentOrder.getWorkingProgress());
 			String nextStep = currentOrder.getNextStep();
 			try {
 				sendMessage(nextStep, 0);

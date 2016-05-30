@@ -1,8 +1,5 @@
 package controlpanel;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.ArrayList;
 
 /**
@@ -35,9 +32,13 @@ public class Order {
         return this.constructionSteps.get(this.currentStepIndex).toString();
     }
 
+    public String getOrderId() {
+        return this.orderId;
+    }
+
     public String getWorkingProgress() {
         int total = this.constructionSteps.size();
-        String pre = "Order " + this.orderId + "finished ";
+        String pre = "Order [" + this.orderId + "] progress ";
         String progress = pre + this.currentStepIndex + "/" + total;
         return progress;
     }

@@ -33,7 +33,6 @@ public class PrinterQueue {
             destination = session.createQueue("order");
             consumer = session.createConsumer(destination);
             Message message = consumer.receive();
-            System.out.print("Message is: " + message.toString());
 
             // TODO: 29.05.16 use Json instance if possible
             if(message instanceof TextMessage) {
