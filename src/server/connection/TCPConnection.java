@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.SynchronousQueue;
+
 import com.google.gson.Gson;
 
 
@@ -14,6 +16,9 @@ public class TCPConnection implements IConnection{
 	int port;
 	int portOfLastClient;
 	int[] portOf = new int[4];
+	SynchronousQueue<String> queue = new SynchronousQueue<String>();
+	SynchronousQueue<String> senderQueue = new SynchronousQueue<String>();
+	String message;
 	
 	ServerSocket listenSocket;
 	
@@ -38,9 +43,9 @@ public class TCPConnection implements IConnection{
 
 	@Override
 	public void close() throws IOException {
-		fromClient[0].close();
-		toClient[0].close();
 		for(int i = 0; i < 4; i++){
+			fromClient[i].close();
+			toClient[i].close();
 			component[i].close();
 		}
 	}
@@ -52,15 +57,21 @@ public class TCPConnection implements IConnection{
 
 	@Override
 	public String receiveMessage() throws IOException {
-		lastSender = "drucker";
-		return fromClient[0].readLine();
+		try {
+			message = queue.take();
+			lastSender = senderQueue.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return message;
+		
 	}
 
 	@Override
 	public void waitForAllComponents() throws IOException {
 		String message;
 		Socket client;
-		
+		String[] name = new String[4];
 		for(int components = 0; components < 4;){
             client = listenSocket.accept();
             System.out.println("Connection with: " +     // Output connection
@@ -73,6 +84,7 @@ public class TCPConnection implements IConnection{
 				if(component[0] == null){
 					components++;
 					System.out.println(message + " verbunden");
+					name[0] = message;
 				}
 	            component[0] = client;
 				break;
@@ -80,6 +92,7 @@ public class TCPConnection implements IConnection{
 				if(component[1] == null){
 					components++;
 					System.out.println(message + " verbunden");
+					name[1] = message;
 				}
 				component[1] = client;
 				break;
@@ -87,6 +100,7 @@ public class TCPConnection implements IConnection{
 				if(component[2] == null){
 					components++;
 					System.out.println(message + " verbunden");
+					name[2] = message;
 				}
 				component[2] = client;
 				break;
@@ -94,6 +108,7 @@ public class TCPConnection implements IConnection{
 				if(component[3] == null){
 					components++;
 					System.out.println(message + " verbunden");
+					name[3] = message;
 				}
 				component[3] = client;
 				break;
@@ -102,9 +117,12 @@ public class TCPConnection implements IConnection{
 			}	
 		}
 		
-
-		fromClient[0] = new BufferedReader(new InputStreamReader(component[0].getInputStream())); // Datastream FROM Client
-		toClient[0] = new DataOutputStream(component[0].getOutputStream());
+		for(int i = 0; i < 4; i++)
+		{
+			fromClient[i] = new BufferedReader(new InputStreamReader(component[i].getInputStream())); // Datastream FROM Client
+			toClient[i] = new DataOutputStream(component[i].getOutputStream());
+			new TCPReceiver(name[i], fromClient[i], queue, senderQueue).start();
+		}
 	}
 		
 	private String identifyClient(Socket client) throws IOException{

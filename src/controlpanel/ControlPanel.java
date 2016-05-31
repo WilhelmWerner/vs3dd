@@ -37,7 +37,6 @@ public class ControlPanel extends Thread {
 					message = ".";
 					message = connection.receiveMessage();
 					lastSender = connection.lastSender();
-					System.out.println("Received: " + message);
 					if(message.equals(".")){
 						// TODO: 29.05.16 detailed error reporting
 						System.out.println("Something went wrong. The printer couldn't finish this order. ");
