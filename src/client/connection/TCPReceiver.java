@@ -1,8 +1,9 @@
-package server.connection;
+package client.connection;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.SynchronousQueue;
 
 import com.google.gson.Gson;
@@ -15,18 +16,18 @@ public class TCPReceiver extends Thread{
 	private BufferedReader receiver;
 	private DataOutputStream sender;
 	private SynchronousQueue<String> queue;
-	private SynchronousQueue<String> senderQueue;
 	private String message;
 	private String name;
+	
+	private long timeForPing = new Date().getTime();
 
 	private Gson gson = new GsonBuilder().create();
 	
-	public TCPReceiver(String name, BufferedReader receiver, DataOutputStream sender, SynchronousQueue<String> queue, SynchronousQueue<String> senderQueue){
+	public TCPReceiver(String name, BufferedReader receiver, DataOutputStream sender, SynchronousQueue<String> queue){
 		this.name = name;
 		this.receiver = receiver;
 		this.sender = sender;
 		this.queue = queue;
-		this.senderQueue = senderQueue;
 	}
 	
 	public void run() {
@@ -39,23 +40,17 @@ public class TCPReceiver extends Thread{
 				e.printStackTrace();
 			}
 			
-			Action action = this.gson.fromJson(message, Action.class);
-
-			switch (action.getType()) {
+			switch (message) {
 			case "PING":
-				try {
-					// fast answer to ping
-					System.out.println("ping erhalten von " + name);
-					sender.writeBytes("PING" + '\n');
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+				// fast answer to ping
+				setTimeForPing(new Date().getTime() - getTimeForPing()); 
+				System.out.println("Der Ping von " + name + " hat " + timeForPing + " ms gebraucht");
+				setTimeForPing(new Date().getTime());
 				break;
 			default:
 				try {
 					// regular message handling
 					queue.put(message);
-					senderQueue.put(name);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -64,5 +59,13 @@ public class TCPReceiver extends Thread{
 			
 		}
 		
+	}
+
+	public long getTimeForPing() {
+		return timeForPing;
+	}
+
+	public void setTimeForPing(long timeForPing) {
+		this.timeForPing = timeForPing;
 	}
 }

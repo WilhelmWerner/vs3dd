@@ -13,14 +13,14 @@ import com.google.gson.Gson;
 
 public class TCPConnection implements IConnection{
 	
-	int port;
-	int portOfLastClient;
-	int[] portOf = new int[4];
-	SynchronousQueue<String> queue = new SynchronousQueue<String>();
-	SynchronousQueue<String> senderQueue = new SynchronousQueue<String>();
-	String message;
+	private int port;
+	private int portOfLastClient;
+	private int[] portOf = new int[4];
+	private SynchronousQueue<String> queue = new SynchronousQueue<String>();
+	private SynchronousQueue<String> senderQueue = new SynchronousQueue<String>();
+	private String message;
 	
-	ServerSocket listenSocket;
+	private ServerSocket listenSocket;
 	
 	private Socket component[] = new Socket[4];
 
@@ -121,7 +121,7 @@ public class TCPConnection implements IConnection{
 		{
 			fromClient[i] = new BufferedReader(new InputStreamReader(component[i].getInputStream())); // Datastream FROM Client
 			toClient[i] = new DataOutputStream(component[i].getOutputStream());
-			new TCPReceiver(name[i], fromClient[i], queue, senderQueue).start();
+			new TCPReceiver(name[i], fromClient[i], toClient[i], queue, senderQueue).start();
 		}
 	}
 		

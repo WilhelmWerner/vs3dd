@@ -11,7 +11,8 @@ public class UDPConnection implements IConnection {
 
     private String host;
     private int port;
-
+    private String name;
+    
     private DatagramSocket socket;
     private byte dataSend[] = new byte[1024];
     private byte dataReceive[] = new byte[1024];
@@ -19,9 +20,10 @@ public class UDPConnection implements IConnection {
     private DatagramPacket packetSend;
     private DatagramPacket packetReceive;
 
-    public UDPConnection(String host, int port) throws Exception{
+    public UDPConnection(String host, int port, String name) throws Exception{
         this.host = host;
         this.port = port;
+        this.name = name;
     }
 
     public void connect() throws IOException {

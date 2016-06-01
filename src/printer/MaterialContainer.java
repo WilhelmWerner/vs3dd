@@ -1,6 +1,7 @@
 package printer;
 
 import java.io.IOException;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,21 +18,24 @@ public class MaterialContainer extends Thread{
     private String host = "";
     private ConstructionStep step;
     private boolean udp;
-    private String color = "rot";
-	
+    private String name = "rot";
+    
+    private long timeForPing;
+	private String message;
+    
 	public MaterialContainer(String host, int port, boolean udp, String color){
 		this.host = host;
 		this.port = port;
 		this.udp = udp;
-		this.color = color;
+		this.name = "container " + color;
 	}
 	
 	public void run(){
 		try{
-            connection = new Connection(host, port, udp);
+            connection = new Connection(host, port, udp, name);
             connection.connect();
             connected = true;
-            connection.sendMessage("container " + color);
+            connection.sendMessage(name);
         } catch(Exception e) {
             System.err.println("Connection to Server failed: " + e.getMessage());
         }
@@ -42,7 +46,7 @@ public class MaterialContainer extends Thread{
             	sendMessage("PING");
             }
             catch (IOException e) {
-                System.err.println("Coulnd't receive message: " + e.getMessage());
+                System.err.println("Coulnd't send message: " + e.getMessage());
             } catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -55,11 +59,9 @@ public class MaterialContainer extends Thread{
         }
 	}
 	
-	private void receiveMessage() throws IOException {
+	private String receiveMessage() throws IOException {
         String msg = connection.receiveMessage();
-        
-        Gson gson = new GsonBuilder().create();
-        step = gson.fromJson(msg, ConstructionStep.class);
+        return msg;
     }
 	
 	private boolean proceedStep(){

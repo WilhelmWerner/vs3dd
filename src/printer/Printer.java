@@ -17,16 +17,18 @@ public class Printer extends Thread{
     private String host = "";
     private ConstructionStep step;
     private boolean udp;
+    private String name;
 	
 	public Printer(String host, int port, boolean udp){
 		this.host = host;
 		this.port = port;
 		this.udp = udp;
+		this.name = "drucker";
 	}
 	
 	public void run(){
 		try{
-            connection = new Connection(host, port, udp);
+            connection = new Connection(host, port, udp, name);
             connection.connect();
             connected = true;
             connection.sendMessage("drucker");
