@@ -18,12 +18,30 @@ public class Printer extends Thread{
     private ConstructionStep step;
     private boolean udp;
     private String name;
+    
+    // Materialbehaelter
+
+	// Array mit allen Materialbehaeltern
+	private MaterialContainer[] allMC;
+	// Array  mit allen Threads für die Materialbehaelter
+	private Thread[] allMCThreads;
+	// Farben der Behaelter
+	private final String colors[] = {"red", "green", "blue"};
 	
-	public Printer(String host, int port, boolean udp){
+	public Printer(String host, int port, boolean udp, int amountMC){
 		this.host = host;
 		this.port = port;
 		this.udp = udp;
 		this.name = "drucker";
+
+		allMC = new MaterialContainer[amountMC];
+		allMCThreads = new Thread[amountMC];
+		
+		for(int j = 0; j < amountMC; j++){
+			allMC[j] = new MaterialContainer(host, port, udp, colors[j]);
+			allMCThreads[j] = new Thread(allMC[j]);
+			allMCThreads[j].start();
+		}	
 	}
 	
 	public void run(){
