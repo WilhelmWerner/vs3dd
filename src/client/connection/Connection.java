@@ -16,12 +16,12 @@ public class Connection {
      * @param udp udp yes? = true otherwise false
      * @throws Exception
      */
-    public Connection(String host, int port, boolean udp) throws Exception {
+    public Connection(String host, int port, boolean udp, String name) throws Exception {
     	if(udp) {
-            Connection = new UDPConnection(host, port);
+            Connection = new UDPConnection(host, port, name);
         }
         else {
-            Connection = new TCPConnection(host, port);
+            Connection = new TCPConnection(host, port, name);
         }
     }
 

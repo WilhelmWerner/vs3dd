@@ -5,32 +5,55 @@ import actions.*;
 import server.connection.Connection;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
 
 public class ControlPanel extends Thread {
 
-	private String displayName = "";
+	private String ctrlId;
+	private String displayName;
 	private Gson gson = new GsonBuilder().create();
     private String lastSender;
 
 	private Order currentOrder = null;
 	private PrinterQueue printerQQ = new PrinterQueue();
 
-    boolean connected;
-	boolean isWorking = false;
+    private boolean connected;
+	private boolean isWorking = false;
 	
-	Connection connection;
+	private Connection connection;
 
-	public ControlPanel(int serverPort, boolean udp) throws Exception {
+	public class RestMsg {
+		public String id;
+		public String data;
+	}
+
+
+	private int updateCounterMax = 10;
+	private int updateCounter = updateCounterMax;
+	private HashMap<String, String> cartridge = new HashMap<String, String>();
+	private final String container[] = {"red", "green", "blue"};
+
+
+	public ControlPanel(int serverPort, boolean udp, String id, String name) throws Exception {
 		connection = new Connection(serverPort, udp);
+		this.displayName = name;
+		this.ctrlId = id;
 	}
 
 	@Override
 	public void run() {
 		String message;
-        this.connected = true;
 		System.out.println("Thread started: " + this);	// Display Thread-ID
+		
+		initializeCartridge();
+		
 		try {
+
 			connection.waitForAllComponents();
+			this.connected = true;
+			sendRestMsg("update-printer-status", this.ctrlId, "online");
 
 			while(connected){
 				if (isWorking) {
@@ -38,9 +61,7 @@ public class ControlPanel extends Thread {
 					message = connection.receiveMessage();
 					lastSender = connection.lastSender();
 					System.out.println("Received: " + message);
-					if(message.equals(".")){
-						// TODO: 29.05.16 detailed error reporting
-						System.out.println("Something went wrong. The printer couldn't finish this order. ");
+					if(message.equals(".")) {
 						disconnect();
 					} else {
 						dispatchAction(message);						
@@ -53,6 +74,10 @@ public class ControlPanel extends Thread {
 
 					if(currentOrder != null) {
 						System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
+
+						sendRestMsg("update-order-status", currentOrder.getOrderId(), "in progress");
+						sendRestMsg("update-current-order", this.ctrlId, currentOrder.getOrderId());
+
 						proceedStep();
 						this.isWorking = true;
 					}
@@ -64,18 +89,6 @@ public class ControlPanel extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void readTestFile() {
-		Reader reader = null;
-		try {
-			reader = new FileReader("jsonTestFiles/order.json");
-			Order order = gson.fromJson(reader, Order.class);
-		}
-		catch(Exception e) {
-			System.err.print("could not read the json file");
-		}
-		this.isWorking = true;
 	}
 
 	/*
@@ -99,14 +112,19 @@ public class ControlPanel extends Thread {
                 break;
 
 			case "STATUS_MESSAGE":
-
+				// TODO: 14.06.16 send tank-status to the rest-api
+				// Wenn eine Statusnachricht von den Materialbehaeltern kommt
+				if(!lastSender.equals("drucker"))
+				{
+					cartridge.put(lastSender, action.getBody());
+				}
 				break;
 
 			case "ERROR":
 
 				break;
 			case "PING":
-				System.out.println("got Ping from " + lastSender);
+				//System.out.println("got Ping from " + lastSender);
 				break;
 			default:
 				System.out.println("Error: Invalid action was dispatched!");
@@ -115,12 +133,45 @@ public class ControlPanel extends Thread {
 
 	}
 
+	private void sendRestMsg(String path, String id, String data)  {
+		try {
+			RestMsg restMsg = new RestMsg();
+			restMsg.id = id;
+			restMsg.data = data;
+			String body = gson.toJson(restMsg);
+			URL url = new URL("http://localhost:3000/methods/" + path);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setUseCaches(false);
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
+
+			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+			writer.write(body);
+			writer.flush();
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			for (String line; (line = reader.readLine()) != null; ) {
+				System.out.println(line);
+			}
+
+			writer.close();
+			reader.close();
+		}
+		catch(Exception e) {
+			System.err.print("Could not send message to the rest-server: " + e.getMessage());
+		}
+	}
+
     private void disconnect() {
 		if(this.connected) {
 			this.connected = false;
 			
 			try {
 				this.connection.close();
+				sendRestMsg("update-printer-status", this.ctrlId, "offline");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -137,11 +188,19 @@ public class ControlPanel extends Thread {
 	}
 
 	private void proceedStep() {
-		if(currentOrder != null && currentOrder.hasNextStep()) {
-			System.out.println(currentOrder.getWorkingProgress());
+		if(currentOrder.hasNextStep()) {
 			String nextStep = currentOrder.getNextStep();
 			try {
+				sendRestMsg( ("update-pending-steps"), this.ctrlId, String.valueOf(currentOrder.getWorkingProgress()));
 				sendMessage(nextStep, 0);
+				
+				// update cycle for cartridge
+				updateCounter--;
+				if(updateCounter < 0){
+					updateCounter = updateCounterMax;
+					updateCartridge();
+				}
+				
 				currentOrder.incrementStepIndex();
 			}
 			catch(Exception e) {
@@ -150,7 +209,20 @@ public class ControlPanel extends Thread {
 		}
 		else {
 			this.isWorking = false;
+			sendRestMsg("update-order-status", currentOrder.getOrderId(), "finished");
 		}
+	}
+	
+	private void initializeCartridge(){
+		cartridge.put(container[0], ""+100);
+		cartridge.put(container[1], ""+100);
+		cartridge.put(container[2], ""+100);
+	}
+	
+	private void updateCartridge(){
+    	Gson gson = new GsonBuilder().create();
+    	gson.toJson(cartridge); // TODO: use the string for updating the cartridge in the dashboard
+
 	}
 
 }

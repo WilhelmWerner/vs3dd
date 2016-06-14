@@ -1,6 +1,7 @@
 package printer;
 
 import java.io.IOException;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,21 +18,25 @@ public class MaterialContainer extends Thread{
     private String host = "";
     private ConstructionStep step;
     private boolean udp;
-    private String color = "rot";
-	
+    private String name = "rot";
+    private int cartridge = 1000; // angegeben in Promille wird aber in Prozent versendet
+    
+    private long timeForPing;
+	private String message;
+    
 	public MaterialContainer(String host, int port, boolean udp, String color){
 		this.host = host;
 		this.port = port;
 		this.udp = udp;
-		this.color = color;
+		this.name = color;
 	}
 	
 	public void run(){
 		try{
-            connection = new Connection(host, port, udp);
+            connection = new Connection(host, port, udp, name);
             connection.connect();
             connected = true;
-            connection.sendMessage("container " + color);
+            connection.sendMessage(name);
         } catch(Exception e) {
             System.err.println("Connection to Server failed: " + e.getMessage());
         }
@@ -40,9 +45,12 @@ public class MaterialContainer extends Thread{
             try {
                 Thread.sleep(5000);
             	sendMessage("PING");
+            	// TODO: real decreasing misses
+            	decreaseCartridge(35);
+            	sendCartridge();
             }
             catch (IOException e) {
-                System.err.println("Coulnd't receive message: " + e.getMessage());
+                System.err.println("Coulnd't send message: " + e.getMessage());
             } catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -55,11 +63,9 @@ public class MaterialContainer extends Thread{
         }
 	}
 	
-	private void receiveMessage() throws IOException {
+	private String receiveMessage() throws IOException {
         String msg = connection.receiveMessage();
-        
-        Gson gson = new GsonBuilder().create();
-        step = gson.fromJson(msg, ConstructionStep.class);
+        return msg;
     }
 	
 	private boolean proceedStep(){
@@ -79,6 +85,22 @@ public class MaterialContainer extends Thread{
     	Gson gson = new GsonBuilder().create();
     	connection.sendMessage(gson.toJson(a));
 	}
+	
+	private void sendCartridge() throws IOException{
+        Action a = new Action("STATUS_MESSAGE", "" + (cartridge/10)); // Fuellstand wird in Prozent versendet
+    	Gson gson = new GsonBuilder().create();
+    	connection.sendMessage(gson.toJson(a));
+		
+	}
+	
+	private void decreaseCartridge(int dec){
+		cartridge -= dec;
+		if(cartridge < 0)
+		{
+			cartridge = 1000;			
+		}
+	}
+	
 	
 }
 
