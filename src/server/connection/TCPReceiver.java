@@ -45,7 +45,7 @@ public class TCPReceiver extends Thread{
 			case "PING":
 				try {
 					// fast answer to ping
-					System.out.println("ping erhalten von " + name);
+					// System.out.println("ping erhalten von " + name);
 					sender.writeBytes("PING" + '\n');
 				} catch (IOException e1) {
 					e1.printStackTrace();

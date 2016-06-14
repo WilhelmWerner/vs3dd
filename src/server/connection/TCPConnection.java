@@ -19,6 +19,8 @@ public class TCPConnection implements IConnection{
 	private SynchronousQueue<String> queue = new SynchronousQueue<String>();
 	private SynchronousQueue<String> senderQueue = new SynchronousQueue<String>();
 	private String message;
+	private Socket client;
+	private String[] name = new String[4];
 	
 	private ServerSocket listenSocket;
 	
@@ -69,9 +71,6 @@ public class TCPConnection implements IConnection{
 
 	@Override
 	public void waitForAllComponents() throws IOException {
-		String message;
-		Socket client;
-		String[] name = new String[4];
 		for(int components = 0; components < 4;){
             client = listenSocket.accept();
             System.out.println("Connection with: " +     // Output connection
@@ -81,36 +80,16 @@ public class TCPConnection implements IConnection{
             
 			switch(message){
 			case "drucker":
-				if(component[0] == null){
-					components++;
-					System.out.println(message + " verbunden");
-					name[0] = message;
-				}
-	            component[0] = client;
+				if(connectComponent(0)) components++;
 				break;
-			case "container rot":
-				if(component[1] == null){
-					components++;
-					System.out.println(message + " verbunden");
-					name[1] = message;
-				}
-				component[1] = client;
+			case "red":
+				if(connectComponent(1)) components++;
 				break;
-			case "container gruen":
-				if(component[2] == null){
-					components++;
-					System.out.println(message + " verbunden");
-					name[2] = message;
-				}
-				component[2] = client;
+			case "green":
+				if(connectComponent(2)) components++;
 				break;
-			case "container blau":
-				if(component[3] == null){
-					components++;
-					System.out.println(message + " verbunden");
-					name[3] = message;
-				}
-				component[3] = client;
+			case "blue":
+				if(connectComponent(3)) components++;
 				break;
 			default:
 				System.err.println("not a component");
@@ -123,6 +102,20 @@ public class TCPConnection implements IConnection{
 			toClient[i] = new DataOutputStream(component[i].getOutputStream());
 			new TCPReceiver(name[i], fromClient[i], toClient[i], queue, senderQueue).start();
 		}
+	}
+	
+	private boolean connectComponent(int i){
+		// first added component
+		if(component[i] == null){
+			System.out.println(message + " verbunden");
+			name[i] = message;
+	        component[i] = client;
+	        return true;
+		}
+		// if the same or another client with the same name tries to connect
+		// just assign the client but do not increment the counter of components
+        component[i] = client;
+        return false;
 	}
 		
 	private String identifyClient(Socket client) throws IOException{
