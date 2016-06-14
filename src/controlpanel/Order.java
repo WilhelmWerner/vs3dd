@@ -42,8 +42,12 @@ public class Order {
     public String getWorkingProgress() {
         int total = this.constructionSteps.size();
         String pre = "Order [" + this.orderId + "] progress ";
-        String progress = pre + (this.currentStepIndex + 1) + "/" + total;
+        String progress = (this.currentStepIndex + 1) + "/" + total;
         return progress;
+    }
+
+    public int getCurrentStepIndex() {
+        return (this.currentStepIndex + 1);
     }
 
     public String toString() {
