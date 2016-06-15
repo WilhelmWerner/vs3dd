@@ -30,7 +30,7 @@ public class ControlPanel extends Thread {
 	}
 
 
-	private int updateCounterMax = 10;
+	private int updateCounterMax = 1;
 	private int updateCounter = updateCounterMax;
 	private HashMap<String, String> cartridge = new HashMap<String, String>();
 	private final String container[] = {"red", "green", "blue"};
@@ -67,7 +67,8 @@ public class ControlPanel extends Thread {
 						dispatchAction(message);						
 					}
 				} else {
-					String nextOrder = printerQQ.consumeOrder();
+					//String nextOrder = printerQQ.consumeOrder();
+					String nextOrder = findWaitingOrder();
 
 					currentOrder = null;
 					currentOrder = gson.fromJson(nextOrder, Order.class);
@@ -88,6 +89,22 @@ public class ControlPanel extends Thread {
 			System.out.println("Thread ended: " + this);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private String findWaitingOrder() {
+		String result;
+		System.out.print("Find waiting order ...");
+		while(true) {
+			result = sendRestMsg("find-waiting-order", "", "");
+			if(!result.contains("nothing")) {
+				return result;
+			}
+			try {
+				sleep(10000);
+			} catch(Exception e) {
+
+			}
 		}
 	}
 
@@ -133,7 +150,7 @@ public class ControlPanel extends Thread {
 
 	}
 
-	private void sendRestMsg(String path, String id, String data)  {
+	private String sendRestMsg(String path, String id, String data)  {
 		try {
 			RestMsg restMsg = new RestMsg();
 			restMsg.id = id;
@@ -152,17 +169,21 @@ public class ControlPanel extends Thread {
 			writer.write(body);
 			writer.flush();
 
+			String result = "";
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			for (String line; (line = reader.readLine()) != null; ) {
 				System.out.println(line);
+				result += line;
 			}
 
 			writer.close();
 			reader.close();
+			return result;
 		}
 		catch(Exception e) {
 			System.err.print("Could not send message to the rest-server: " + e.getMessage());
 		}
+		return null;
 	}
 
     private void disconnect() {
@@ -221,8 +242,9 @@ public class ControlPanel extends Thread {
 	
 	private void updateCartridge(){
     	Gson gson = new GsonBuilder().create();
-    	gson.toJson(cartridge); // TODO: use the string for updating the cartridge in the dashboard
-
+    	String cartdrige =  gson.toJson(cartridge); // TODO: use the string for updating the cartridge in the dashboard
+		System.out.println("-----------------> " + cartdrige );
+		sendRestMsg("update-printer-cartdrige", this.ctrlId, cartdrige);
 	}
 
 }
