@@ -239,7 +239,7 @@ public class ControlPanel extends Thread {
 		cartridge.put(container[1], ""+100);
 		cartridge.put(container[2], ""+100);
 	}
-	
+	 
 	private void updateCartridge(){
     	Gson gson = new GsonBuilder().create();
     	String cartdrige =  gson.toJson(cartridge); // TODO: use the string for updating the cartridge in the dashboard
