@@ -17,7 +17,8 @@ public class ControlPanel extends Thread {
     private String lastSender;
 
 	private Order currentOrder = null;
-	private PrinterQueue printerQQ = new PrinterQueue();
+	//private PrinterQueue printerQQ = new PrinterQueue();
+	private PrinterQueueMQTT mqttQQ = null;
 
     private boolean connected;
 	private boolean isWorking = false;
@@ -40,6 +41,7 @@ public class ControlPanel extends Thread {
 		connection = new Connection(serverPort, udp);
 		this.displayName = name;
 		this.ctrlId = id;
+		this.mqttQQ = new PrinterQueueMQTT(name, id);
 	}
 
 	@Override
@@ -68,19 +70,22 @@ public class ControlPanel extends Thread {
 					}
 				} else {
 					//String nextOrder = printerQQ.consumeOrder();
-					String nextOrder = findWaitingOrder();
+					//String nextOrder = findWaitingOrder();
+					String nextOrder = mqttQQ.getNewOrder();
 
-					currentOrder = null;
-					currentOrder = gson.fromJson(nextOrder, Order.class);
+					if( nextOrder != null) {
+						currentOrder = null;
+						currentOrder = gson.fromJson(nextOrder, Order.class);
 
-					if(currentOrder != null) {
-						System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
+						if(currentOrder != null) {
+							System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
 
-						sendRestMsg("update-order-status", currentOrder.getOrderId(), "in progress");
-						sendRestMsg("update-current-order", this.ctrlId, currentOrder.getOrderId());
+							sendRestMsg("update-order-status", currentOrder.getOrderId(), "in progress");
+							sendRestMsg("update-current-order", this.ctrlId, currentOrder.getOrderId());
 
-						proceedStep();
-						this.isWorking = true;
+							proceedStep();
+							this.isWorking = true;
+						}
 					}
 
 				}

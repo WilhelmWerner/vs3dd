@@ -31,5 +31,6 @@
     <orderEntry type="library" name="com.google.code.gson:gson:2.6.2" level="project" />
     <orderEntry type="library" name="org.glassfish.jersey.containers:jersey-container-jdk-http:2.3.1" level="project" />
     <orderEntry type="library" name="org.apache.activemq:activemq-all:5.13.3" level="project" />
+    <orderEntry type="library" name="org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.2" level="project" />
   </component>
 </module>

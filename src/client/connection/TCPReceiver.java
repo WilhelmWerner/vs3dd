@@ -44,7 +44,7 @@ public class TCPReceiver extends Thread{
 			case "PING":
 				// fast answer to ping
 				setTimeForPing(new Date().getTime() - getTimeForPing()); 
-				System.out.println("Der Ping von " + name + " hat " + ((timeForPing - 5000) < 1 ? "weniger als 1" : (timeForPing - 5000)) + " ms gebraucht");
+				//System.out.println("Der Ping von " + name + " hat " + ((timeForPing - 5000) < 1 ? "weniger als 1" : (timeForPing - 5000)) + " ms gebraucht");
 				setTimeForPing(new Date().getTime());
 				break;
 			default:
