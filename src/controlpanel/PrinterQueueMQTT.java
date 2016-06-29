@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-import static com.google.common.net.HttpHeaders.USER_AGENT;
+//import static com.google.common.net.HttpHeaders.USER_AGENT;
 
 /**
  * Created by Wilhelm and Marcel
@@ -92,7 +92,7 @@ public class PrinterQueueMQTT {
         con.setRequestMethod("GET");
 
         //add request header
-        con.setRequestProperty("User-Agent", USER_AGENT);
+        //con.setRequestProperty("User-Agent", USER_AGENT);
 
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'GET' request to URL : " + url);
