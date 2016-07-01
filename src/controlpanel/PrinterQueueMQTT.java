@@ -18,7 +18,7 @@ public class PrinterQueueMQTT {
 
     private MqttClient client = null;
 
-    private static Vector<String> orderIds = new Vector<>();
+    private Vector<String> orderIds = new Vector<>();
     private String topic;
     private String clientId;
     int qos = 2; // 0 = at most once, 1 = at least once, 2 = exactly once
@@ -83,7 +83,7 @@ public class PrinterQueueMQTT {
     }
 
     private String getOrderById(String id) throws Exception {
-        String url = "http://localhost:3000/blueprint/" + id;
+        String url = "http://localhost:3000/order/" + id;
 
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
