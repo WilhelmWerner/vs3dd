@@ -41,7 +41,7 @@ public class ControlPanel extends Thread {
 		connection = new Connection(serverPort, udp);
 		this.displayName = name;
 		this.ctrlId = id;
-		this.mqttQQ = new PrinterQueueMQTT(name, id);
+		this.mqttQQ = new PrinterQueueMQTT(id);
 	}
 
 	@Override

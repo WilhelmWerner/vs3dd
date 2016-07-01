@@ -19,7 +19,6 @@ public class PrinterQueueMQTT {
     private MqttClient client = null;
 
     private Vector<String> orderIds = new Vector<>();
-    private String topic;
     private String clientId;
     int qos = 2; // 0 = at most once, 1 = at least once, 2 = exactly once
     private String broker = "tcp://188.107.131.18:1883";
@@ -27,8 +26,7 @@ public class PrinterQueueMQTT {
 
 
 
-    public PrinterQueueMQTT(String topic, String clientId) {
-        this.topic = topic;
+    public PrinterQueueMQTT(String clientId) {
         this.clientId = clientId;
         try {
             client = new MqttClient(broker, clientId, persistence);
@@ -55,7 +53,7 @@ public class PrinterQueueMQTT {
             System.out.println("Connecting to broker: "+broker);
             client.connect(connOpts);
             System.out.println("Connected");
-            client.subscribe(topic);
+            client.subscribe(clientId);
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
