@@ -5,8 +5,6 @@ import actions.*;
 import server.connection.Connection;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 
 public class ControlPanel extends Thread {
@@ -17,18 +15,11 @@ public class ControlPanel extends Thread {
     private String lastSender;
 
 	private Order currentOrder = null;
-	private PrinterQueue printerQQ = new PrinterQueue();
 
     private boolean connected;
 	private boolean isWorking = false;
 	
 	private Connection connection;
-
-	public class RestMsg {
-		public String id;
-		public String data;
-	}
-
 
 	private int updateCounterMax = 1;
 	private int updateCounter = updateCounterMax;
@@ -53,7 +44,6 @@ public class ControlPanel extends Thread {
 
 			connection.waitForAllComponents();
 			this.connected = true;
-			sendRestMsg("update-printer-status", this.ctrlId, "online");
 
 			while(connected){
 				if (isWorking) {
@@ -76,9 +66,6 @@ public class ControlPanel extends Thread {
 					if(currentOrder != null) {
 						System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
 
-						sendRestMsg("update-order-status", currentOrder.getOrderId(), "in progress");
-						sendRestMsg("update-current-order", this.ctrlId, currentOrder.getOrderId());
-
 						proceedStep();
 						this.isWorking = true;
 					}
@@ -93,19 +80,9 @@ public class ControlPanel extends Thread {
 	}
 
 	private String findWaitingOrder() {
-		String result;
+		String result = "{  \"orderId\": \"yc2DRgbq3GyZq3LXe\",  \"constructionSteps\": [    {      \"x\": 0,      \"y\": 0,      \"z\": 0,      \"draw\": false,      \"color\": \"#000\"    },    {      \"x\": 115,      \"y\": 37,      \"z\": 180,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 55,      \"y\": 27,      \"z\": 0,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 119,      \"y\": 133,      \"z\": 101,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 30,      \"y\": 14,      \"z\": 70,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 161,      \"y\": 14,      \"z\": 36,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 98,      \"y\": 162,      \"z\": 110,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 44,      \"y\": 4,      \"z\": 59,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 38,      \"y\": 57,      \"z\": 128,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 104,      \"y\": 46,      \"z\": 29,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 2,      \"y\": 46,      \"z\": 91,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 137,      \"y\": 104,      \"z\": 136,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 185,      \"y\": 162,      \"z\": 148,      \"draw\": true,      \"color\": \"#000\"    }  ]}";
 		System.out.print("Find waiting order ...");
-		while(true) {
-			result = sendRestMsg("find-waiting-order", "", "");
-			if(!result.contains("nothing")) {
-				return result;
-			}
-			try {
-				sleep(10000);
-			} catch(Exception e) {
-
-			}
-		}
+		return result;
 	}
 
 	/*
@@ -150,49 +127,12 @@ public class ControlPanel extends Thread {
 
 	}
 
-	private String sendRestMsg(String path, String id, String data)  {
-		try {
-			RestMsg restMsg = new RestMsg();
-			restMsg.id = id;
-			restMsg.data = data;
-			String body = gson.toJson(restMsg);
-			URL url = new URL("http://localhost:3000/methods/" + path);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("POST");
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-			connection.setUseCaches(false);
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
-
-			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-			writer.write(body);
-			writer.flush();
-
-			String result = "";
-			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			for (String line; (line = reader.readLine()) != null; ) {
-				System.out.println(line);
-				result += line;
-			}
-
-			writer.close();
-			reader.close();
-			return result;
-		}
-		catch(Exception e) {
-			System.err.print("Could not send message to the rest-server: " + e.getMessage());
-		}
-		return null;
-	}
-
     private void disconnect() {
 		if(this.connected) {
 			this.connected = false;
 			
 			try {
 				this.connection.close();
-				sendRestMsg("update-printer-status", this.ctrlId, "offline");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -212,7 +152,6 @@ public class ControlPanel extends Thread {
 		if(currentOrder.hasNextStep()) {
 			String nextStep = currentOrder.getNextStep();
 			try {
-				sendRestMsg( ("update-pending-steps"), this.ctrlId, String.valueOf(currentOrder.getWorkingProgress()));
 				sendMessage(nextStep, 0);
 				
 				// update cycle for cartridge
@@ -230,7 +169,6 @@ public class ControlPanel extends Thread {
 		}
 		else {
 			this.isWorking = false;
-			sendRestMsg("update-order-status", currentOrder.getOrderId(), "finished");
 		}
 	}
 	
@@ -244,7 +182,6 @@ public class ControlPanel extends Thread {
     	Gson gson = new GsonBuilder().create();
     	String cartdrige =  gson.toJson(cartridge); // TODO: use the string for updating the cartridge in the dashboard
 		System.out.println("-----------------> " + cartdrige );
-		sendRestMsg("update-printer-cartdrige", this.ctrlId, cartdrige);
 	}
 
 }

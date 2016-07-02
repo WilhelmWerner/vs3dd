@@ -87,7 +87,7 @@ public class UDPConnection implements IConnection{
 				portOf[0] = portOfLastClient;
 				nameOf[0] = message;
 				break;
-			case "container rot":
+			case "red":
 				if(addressOf[1] == null){
 					components++;
 					System.out.println(message + " verbunden");
@@ -96,7 +96,7 @@ public class UDPConnection implements IConnection{
 				portOf[1] = portOfLastClient;
 				nameOf[1] = message;
 				break;
-			case "container gruen":
+			case "green":
 				if(addressOf[2] == null){
 					components++;
 					System.out.println(message + " verbunden");
@@ -105,7 +105,7 @@ public class UDPConnection implements IConnection{
 				portOf[2] = portOfLastClient;
 				nameOf[2] = message;
 				break;
-			case "container blau":
+			case "blue":
 				if(addressOf[3] == null){
 					components++;
 					System.out.println(message + " verbunden");

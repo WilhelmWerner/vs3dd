@@ -4,7 +4,7 @@ import printer.*;
 
 public class StartAllPrinters {
 	// Menge der Drucker
-	private int amountP = 5;
+	private int amountP = 1;
 	// Menge der Materialbehaelter pro Drucker
 	private int amountMC = 3;
 	// Array mit allen Druckern
@@ -14,7 +14,7 @@ public class StartAllPrinters {
 	
 	private String host = "localhost";
 	private int port = 25565;
-	private boolean udp = false;
+	private boolean udp = true;
 	
 	// startet alle Drucker und deren Materialbehaelter in eigenen Threads
 	public StartAllPrinters(){
