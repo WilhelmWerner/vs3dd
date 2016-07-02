@@ -88,7 +88,7 @@ public class Printer extends Thread{
         System.out.println("Message: " + step.toString());
         
         try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return false;

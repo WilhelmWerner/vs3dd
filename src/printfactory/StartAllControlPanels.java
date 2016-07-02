@@ -17,7 +17,7 @@ public class StartAllControlPanels {
 	
 	public static void main(String[] args) throws Exception {
         int port = 25565;
-        int amountCP = 5;
+        int amountCP = 10;
         boolean udp = false;
         try {
             /**
