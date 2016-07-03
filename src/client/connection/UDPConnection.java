@@ -47,6 +47,8 @@ public class UDPConnection implements IConnection {
     }
 
     public String receiveMessage() throws IOException {
+		String message;
+	    byte dataReceive[] = new byte[1024]; // 128 chars in java
         packetReceive = new DatagramPacket(dataReceive, dataReceive.length);
         socket.receive(packetReceive);
         String msg = new String(packetReceive.getData());

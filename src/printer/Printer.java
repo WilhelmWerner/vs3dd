@@ -51,14 +51,14 @@ public class Printer extends Thread{
             connected = true;
             connection.sendMessage("drucker");
         } catch(Exception e) {
-            System.err.println("Connection to Server failed: " + e.getMessage());
+            //System.err.println("Connection to Server failed: " + e.getMessage());
         }
 		
 		while(connected) {
             try {
                 receiveMessage();
                 if(proceedStep()){
-                	System.out.println("Send success");
+                	//System.out.println("Send success");
                 	sendMessage("SUCCESS_STEP");
                 } else {
                 	sendMessage("ERROR");
@@ -67,6 +67,13 @@ public class Printer extends Thread{
             }
             catch (IOException e) {
                 System.err.println("Coulnd't receive message: " + e.getMessage());
+                try {
+                    connection.close();
+                    connected = false;
+                }
+                catch (Exception ex) {
+                    System.err.println("Coulnd't close client connection: " + ex.getMessage());
+                }
             }
         }
         try {
@@ -85,7 +92,7 @@ public class Printer extends Thread{
     }
 	
 	private boolean proceedStep(){
-        System.out.println("Message: " + step.toString());
+        //System.out.println("Message: " + step.toString());
         
         try {
 			Thread.sleep(1000);

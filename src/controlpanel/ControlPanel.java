@@ -6,6 +6,7 @@ import server.connection.Connection;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.concurrent.SynchronousQueue;
 
 public class ControlPanel extends Thread {
 
@@ -18,6 +19,8 @@ public class ControlPanel extends Thread {
 
     private boolean connected;
 	private boolean isWorking = false;
+	private int orderCounter = 0;
+	private int orderCounterMax = 10;
 	
 	private Connection connection;
 
@@ -25,16 +28,24 @@ public class ControlPanel extends Thread {
 	private int updateCounter = updateCounterMax;
 	private HashMap<String, String> cartridge = new HashMap<String, String>();
 	private final String container[] = {"red", "green", "blue"};
+	
+	private SynchronousQueue<String> startQueue;
+	private SynchronousQueue<String> endQueue;
+	private long startTime;
+	private long endTime;
 
 
-	public ControlPanel(int serverPort, boolean udp, String id, String name) throws Exception {
+	public ControlPanel(int serverPort, boolean udp, String id, String name, SynchronousQueue<String> startQueue, SynchronousQueue<String> endQueue) throws Exception {
 		connection = new Connection(serverPort, udp);
 		this.displayName = name;
 		this.ctrlId = id;
+		this.startQueue = startQueue;
+		this.endQueue = endQueue;
 	}
 
 	@Override
 	public void run() {
+		startTime = System.currentTimeMillis();
 		String message;
 		System.out.println("Thread started: " + this);	// Display Thread-ID
 		
@@ -48,15 +59,20 @@ public class ControlPanel extends Thread {
 			while(connected){
 				if (isWorking) {
 					message = ".";
-					message = connection.receiveMessage();
+					
+						message = connection.receiveMessage();
+					
 					lastSender = connection.lastSender();
-					System.out.println("Received: " + message);
+					//System.out.println("Received: " + message);
 					if(message.equals(".")) {
 						disconnect();
 					} else {
 						dispatchAction(message);						
 					}
 				} else {
+					orderCounter++;
+					if(orderCounter > orderCounterMax)
+						disconnect();
 					//String nextOrder = printerQQ.consumeOrder();
 					String nextOrder = findWaitingOrder();
 
@@ -64,7 +80,7 @@ public class ControlPanel extends Thread {
 					currentOrder = gson.fromJson(nextOrder, Order.class);
 
 					if(currentOrder != null) {
-						System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
+						//System.out.println("Consuming new Order | ID: " + currentOrder.getOrderId());
 
 						proceedStep();
 						this.isWorking = true;
@@ -81,7 +97,7 @@ public class ControlPanel extends Thread {
 
 	private String findWaitingOrder() {
 		String result = "{  \"orderId\": \"yc2DRgbq3GyZq3LXe\",  \"constructionSteps\": [    {      \"x\": 0,      \"y\": 0,      \"z\": 0,      \"draw\": false,      \"color\": \"#000\"    },    {      \"x\": 115,      \"y\": 37,      \"z\": 180,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 55,      \"y\": 27,      \"z\": 0,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 119,      \"y\": 133,      \"z\": 101,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 30,      \"y\": 14,      \"z\": 70,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 161,      \"y\": 14,      \"z\": 36,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 98,      \"y\": 162,      \"z\": 110,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 44,      \"y\": 4,      \"z\": 59,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 38,      \"y\": 57,      \"z\": 128,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 104,      \"y\": 46,      \"z\": 29,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 2,      \"y\": 46,      \"z\": 91,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 137,      \"y\": 104,      \"z\": 136,      \"draw\": true,      \"color\": \"#000\"    },    {      \"x\": 185,      \"y\": 162,      \"z\": 148,      \"draw\": true,      \"color\": \"#000\"    }  ]}";
-		System.out.print("Find waiting order ...");
+		//System.out.print("Find waiting order ...");
 		return result;
 	}
 
@@ -130,6 +146,15 @@ public class ControlPanel extends Thread {
     private void disconnect() {
 		if(this.connected) {
 			this.connected = false;
+			endTime = System.currentTimeMillis();
+			
+			try {
+				startQueue.put("" + startTime);
+				endQueue.put("" + endTime);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			
 			try {
 				this.connection.close();
@@ -164,7 +189,7 @@ public class ControlPanel extends Thread {
 				currentOrder.incrementStepIndex();
 			}
 			catch(Exception e) {
-				System.err.print("The server could not send the message to the client.");
+				//System.err.print("The server could not send the message to the client.");
 			}
 		}
 		else {
@@ -181,7 +206,7 @@ public class ControlPanel extends Thread {
 	private void updateCartridge(){
     	Gson gson = new GsonBuilder().create();
     	String cartdrige =  gson.toJson(cartridge); // TODO: use the string for updating the cartridge in the dashboard
-		System.out.println("-----------------> " + cartdrige );
+		//System.out.println("-----------------> " + cartdrige );
 	}
 
 }

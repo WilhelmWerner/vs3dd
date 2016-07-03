@@ -44,13 +44,20 @@ public class MaterialContainer extends Thread{
 		while(connected) {
             try {
                 Thread.sleep(5000);
-            	sendMessage("PING");
+            	//sendMessage("PING");
             	// TODO: real decreasing misses
             	decreaseCartridge(35);
             	sendCartridge();
             }
             catch (IOException e) {
                 System.err.println("Coulnd't send message: " + e.getMessage());
+                try {
+                    connection.close();
+                    connected = false;
+                }
+                catch (Exception ex) {
+                    System.err.println("Coulnd't close client connection: " + ex.getMessage());
+                }
             } catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -67,18 +74,6 @@ public class MaterialContainer extends Thread{
         String msg = connection.receiveMessage();
         return msg;
     }
-	
-	private boolean proceedStep(){
-        System.out.println("Message: " + step.toString());
-        
-        try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return false;
-		}
-        return true;
-	}
 	
 	private void sendMessage(String msg) throws IOException{
         Action a = new Action(msg);
